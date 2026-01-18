@@ -12,7 +12,6 @@ export default function ResultsPage() {
   const books = useBookStore((s) => s.books);
   const router = useRouter();
   const ranked = [...books].sort((a, b) => b.rating - a.rating);
-  const topBook = ranked[0];
   const topFive = ranked.slice(0, 5);
   const rest = ranked.slice(5);
 
@@ -106,86 +105,103 @@ export default function ResultsPage() {
       </div>
 
       <div ref={captureRef} className="p-4 rounded-2xl">
-        {topBook && (
-          <section className="mb-10 text-center">
-            <p className="text-sm uppercase tracking-widest text-violet-500 mb-3">
-              Your favorite book of 2025
-            </p>
-
-            <div
-              className="
-                mx-auto w-[92%] sm:w-full max-w-85 sm:max-w-md rounded-2xl sm:rounded-3xl bg-linear-to-b from-violet-50 to-white dark:from-violet-950 dark:to-gray-900 border border-violet-100 dark:border-violet-900  p-3 sm:p-6 shadow-lg sm:shadow-xl
-              "
-            >
-              {topBook.thumbnail && (
-                <img
-                  src={topBook.thumbnail}
-                  alt={topBook.title}
-                  className="mx-auto h-36 sm:h-60 object-contain mb-3 sm:mb-5 rounded-lg shadow-[0_10px_30px_rgba(0,0,0,0.2)] "
-                />
-              )}
-
-              <h2 className="text-lg sm:text-2xl font-bold mb-1 leading-tight">
-                🥇 {topBook.title}
-              </h2>
-
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
-                {topBook.authors.join(", ")}
-              </p>
-            </div>
-          </section>
-        )}
-
         <section className="mb-12">
-          <h3 className="text-xl font-semibold mb-5 text-center flex items-center justify-center gap-2">
-            <Star className="w-5 h-5 text-amber-500 fill-amber-500 dark:fill-amber-400" />
-            Top 5 Books
-          </h3>
+          <p className="text-sm uppercase tracking-widest text-violet-500 mb-4 text-center">
+            Your Top 5 Books of 2025
+          </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-            {topFive.map((book, index) => (
-              <div
-                key={book.id}
-                className=" group relative rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 text-center hover:scale-[1.03] transition hover:bg-violet-50 dark:hover:bg-gray-800"
-              >
-                <span
-                  className="
-                    absolute -top-2 -left-2 
-                    bg-violet-600 text-white text-xs px-2 py-0.5 rounded-full
-                  "
+          <div className="space-y-3 max-w-2xl mx-auto">
+            {topFive.map((book, index) => {
+              const isHero = index === 0;
+
+              return (
+                <div
+                  key={book.id}
+                  className={`
+              flex items-center gap-4 rounded-xl
+              border transition-all
+
+              ${
+                isHero
+                  ? // ===== HERO STYLE =====
+                    "p-4 sm:p-6 bg-linear-to-r from-violet-100 to-white dark:from-violet-950 dark:to-gray-900 border-violet-300 dark:border-violet-800 shadow-lg"
+                  : // ===== NORMAL ROWS =====
+                    "p-3 sm:p-4 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:bg-violet-50 dark:hover:bg-gray-800"
+              }
+            `}
                 >
-                  #{index + 1}
-                </span>
+                  <div
+                    className={`
+                rounded-full flex items-center justify-center
+                font-bold shrink-0
 
-                {book.thumbnail && (
-                  <img
-                    src={book.thumbnail}
-                    alt={book.title}
-                    className="mx-auto h-36 w-24 object-contain mb-2 rounded shadow-sm  transition"
-                  />
-                )}
+                ${
+                  isHero
+                    ? "w-9 h-9 sm:w-10 sm:h-10 bg-violet-600 text-white text-base"
+                    : "w-7 h-7 sm:w-8 sm:h-8 bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300 text-sm"
+                }
+              `}
+                  >
+                    {index + 1}
+                  </div>
 
-                <p className="text-xs font-medium line-clamp-2">{book.title}</p>
+                  {book.thumbnail ? (
+                    <img
+                      src={book.thumbnail}
+                      alt={book.title}
+                      className={`
+                  object-contain rounded shadow shrink-0
 
-                <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
-                  {book.authors[0]}
-                </p>
-              </div>
-            ))}
+                  ${
+                    isHero
+                      ? "h-20 w-14 sm:h-28 sm:w-20"
+                      : "h-16 w-12 sm:h-20 sm:w-14"
+                  }
+                `}
+                    />
+                  ) : (
+                    <div
+                      className={`
+                  bg-gray-200 dark:bg-gray-800 rounded shrink-0
+                  ${
+                    isHero
+                      ? "h-20 w-14 sm:h-28 sm:w-20"
+                      : "h-16 w-12 sm:h-20 sm:w-14"
+                  }
+                `}
+                    />
+                  )}
+
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className={`font-semibold line-clamp-5 whitespace-normal overflow-hidden 
+      ${isHero ? "text-base sm:text-xl" : "text-sm sm:text-base"}
+    `}
+                      title={book.title}
+                    >
+                      {book.title}
+                    </p>
+
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                      {book.authors.join(", ")}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
 
         {rest.length > 0 && (
           <section>
-            <h3 className="text-xl font-semibold mb-4">📚 Full Ranking</h3>
-
             <div className="space-y-2">
               {rest.map((book, i) => (
                 <div
                   key={book.id}
                   className="
-                   flex items-center gap-4 rounded-lg px-2 py-2 hover:bg-violet-50 dark:hover:bg-gray-800 transition
-                  "
+              flex items-center gap-4 rounded-lg px-2 py-2
+              hover:bg-violet-50 dark:hover:bg-gray-800 transition
+            "
                 >
                   <span className="w-6 text-sm font-semibold text-violet-500">
                     {i + 6}
