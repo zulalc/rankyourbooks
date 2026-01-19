@@ -91,7 +91,7 @@ export default function ResultsPage() {
 
       let y = 30;
 
-      books.forEach((book, index) => {
+      ranked.forEach((book, index) => {
         if (y > 265) {
           pdf.addPage();
 
@@ -305,7 +305,7 @@ export default function ResultsPage() {
               Your {yearFilter === "all" ? "All Time" : yearFilter} Book Ranking
             </h2>
             <div className="space-y-2">
-              {books.map((book, i) => (
+              {ranked.map((book, i) => (
                 <div
                   key={book.id}
                   className="
