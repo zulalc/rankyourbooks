@@ -1,9 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Book } from "../types/book";
+type YearFilter = "all" | number;
 
 type BookState = {
   books: Book[];
+  yearFilter: YearFilter;
+  setYearFilter: (y: YearFilter) => void;
   addBook: (book: Book) => void;
   addBooks: (books: Book[]) => void;
   removeBook: (id: string) => void;
@@ -16,6 +19,9 @@ export const useBookStore = create<BookState>()(
   persist(
     (set, get) => ({
       books: [],
+
+      yearFilter: 2025,
+      setYearFilter: (y) => set({ yearFilter: y }),
 
       addBook: (book) =>
         set((state) => ({
@@ -49,7 +55,7 @@ export const useBookStore = create<BookState>()(
           books: state.books.map((b) => (b.id === updated.id ? updated : b)),
         })),
 
-      reset: () => set({ books: [] }),
+      reset: () => set({ books: [], yearFilter: 2025 }),
     }),
 
     {

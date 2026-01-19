@@ -12,7 +12,9 @@ export default function Home() {
   const [error, setError] = useState("");
   const [importedCount, setImportedCount] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
-  const [yearFilter, setYearFilter] = useState<"all" | number>(2025);
+
+  const yearFilter = useBookStore((s) => s.yearFilter);
+  const setYearFilter = useBookStore((s) => s.setYearFilter);
 
   async function handleCSVUpload(file: File) {
     setLoading(true);
