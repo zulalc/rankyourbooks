@@ -58,8 +58,18 @@ export default function ResultsPage() {
   }
 
   async function downloadPDF() {
+    if (!pdfRef.current) return;
+
     try {
       setExporting(true);
+
+      const canvas = await html2canvas(pdfRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.98);
 
       const pdf = new jsPDF({
         orientation: "p",
@@ -67,67 +77,30 @@ export default function ResultsPage() {
         format: "a4",
       });
 
-      pdf.setFont("helvetica");
+      const pageWidth = 210;
+      const pageHeight = 297;
 
-      const titleText =
-        yearFilter === 2025 ? "Book Ranking – 2025" : "All Time Book Ranking";
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      const footerText =
-        yearFilter === 2025
-          ? "Generated for 2025 – Rank Your Books"
-          : "Generated as All Time – Rank Your Books";
+      let heightLeft = imgHeight;
+      let position = 0;
 
-      pdf.setFillColor(17, 24, 39);
-      pdf.rect(0, 0, 210, 18, "F");
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
 
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(13);
-      pdf.text(titleText, 20, 12);
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
 
-      pdf.setFontSize(9);
-      pdf.text(new Date().toLocaleDateString(), 170, 12);
+        pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
 
-      pdf.setTextColor(0, 0, 0);
+        heightLeft -= pageHeight;
+      }
 
-      let y = 30;
-
-      ranked.forEach((book, index) => {
-        if (y > 265) {
-          pdf.addPage();
-
-          pdf.setFillColor(17, 24, 39);
-          pdf.rect(0, 0, 210, 18, "F");
-
-          pdf.setTextColor(255, 255, 255);
-          pdf.setFontSize(13);
-          pdf.text(titleText, 20, 12);
-
-          pdf.setTextColor(0, 0, 0);
-          y = 30;
-        }
-
-        pdf.setFillColor(249, 250, 251);
-        pdf.roundedRect(16, y - 6, 178, 12, 2, 2, "F");
-
-        pdf.setFillColor(229, 231, 235);
-        pdf.circle(26, y, 3.6, "F");
-
-        pdf.setFontSize(10);
-        pdf.text(String(index + 1), 25, y + 1);
-
-        pdf.setFontSize(11);
-        const title = pdf.splitTextToSize(book.title, 150);
-        pdf.text(title, 34, y + 1);
-
-        y += title.length * 8 + 2;
-      });
-
-      pdf.setFontSize(9);
-      pdf.setTextColor(120, 120, 120);
-      pdf.text(footerText, 20, 285);
-
-      const fileLabel = yearFilter === 2025 ? "2025" : "all-time";
-      pdf.save(`book-ranking-${fileLabel}.pdf`);
+      pdf.save(
+        `book-ranking-${yearFilter === "all" ? "all-time" : yearFilter}.pdf`,
+      );
     } finally {
       setExporting(false);
     }
@@ -183,14 +156,24 @@ export default function ResultsPage() {
       <div
         ref={imageRef}
         className={`
-    p-10 pb-14 rounded-3xl relative overflow-hidden
-    bg-linear-to-b ${t.bg}
-    text-white shadow-2xl
-  `}
+            p-5 sm:p-10 pb-8 sm:pb-14
+            rounded-2xl sm:rounded-3xl
+            relative overflow-hidden
+            bg-linear-to-b ${t.bg}
+            text-white shadow-2xl
+          `}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_60%)]" />
 
-        <div className="flex justify-between items-start mb-10 relative">
+        <div
+          className="
+            flex flex-col sm:flex-row
+            sm:justify-between sm:items-start
+            gap-4 sm:gap-0
+            mb-6 sm:mb-10
+            relative
+          "
+        >
           <div>
             <p
               className={`text-sm opacity-90 mb-1 flex items-center gap-1.5 tracking-wider ${t.accent}`}
@@ -199,13 +182,13 @@ export default function ResultsPage() {
               RANK YOUR BOOKS
             </p>
 
-            <h2 className="text-5xl font-black tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight">
               {yearFilter === "all" ? "ALL TIME" : yearFilter}
             </h2>
           </div>
 
           <div className="text-right">
-            <p className="text-7xl font-extrabold leading-none text-white drop-shadow-lg">
+            <p className="text-4xl sm:text-7xl font-extrabold leading-none text-white drop-shadow-lg">
               {books.length}
             </p>
             <p className="text-sm opacity-90 tracking-[0.2em] text-white">
@@ -215,7 +198,7 @@ export default function ResultsPage() {
         </div>
 
         {topFive[0] && (
-          <div className="mb-9 relative">
+          <div className="mb-5 sm:mb-8 relative">
             <p
               className={`text-lg sm:text-xl font-extrabold mb-3 flex items-center gap-2 relative ${t.accent}`}
             >
@@ -225,20 +208,24 @@ export default function ResultsPage() {
 
             <div
               className="
-        flex gap-6 items-center
-        p-5 rounded-2xl relative
-        bg-white/10 backdrop-blur
-        border border-white/20
-        shadow-[0_20px_40px_rgba(0,0,0,0.4)]
+              flex flex-col sm:flex-row
+              gap-4 sm:gap-8
+              items-center sm:items-start
+              p-4 sm:p-7
+              rounded-xl sm:rounded-2xl
+              relative
+            bg-white/10 backdrop-blur
+            border border-white/20
+            shadow-[0_20px_40px_rgba(0,0,0,0.4)]
       "
             >
               {topFive[0].thumbnail && (
                 <img
                   src={topFive[0].thumbnail}
                   className="
-              h-44 w-30 object-contain rounded-lg
-              shadow-[0_10px_30px_rgba(0,0,0,0.6)]
-              relative
+                  h-44 w-30
+                  object-contain rounded-lg
+                  shadow-[0_10px_30px_rgba(0,0,0,0.6)]
             "
                 />
               )}
@@ -246,7 +233,7 @@ export default function ResultsPage() {
               <div className="min-w-0 relative">
                 <h3
                   className="
-            text-3xl font-black leading-tight
+            text-2xl sm:text-3xl font-black leading-tight
             mb-2 line-clamp-3 tracking-tight
           "
                 >
@@ -256,51 +243,84 @@ export default function ResultsPage() {
                 <p className={`${t.accent} mb-3 text-base`}>
                   {topFive[0].authors.join(", ")}
                 </p>
-
-                <p className="text-xs opacity-70 flex items-center gap-1 tracking-wide">
-                  <FileText className="w-3 h-3" />
-                  Top pick of {yearFilter === "all" ? "all time" : yearFilter}
-                </p>
               </div>
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3 relative">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 relative">
           {topFive.slice(1).map((book, i) => (
             <div
               key={book.id}
               className="
-          p-4 rounded-xl
-          bg-white/10 backdrop-blur
-          border border-white/20
-        "
+              p-2.5 sm:p-3
+              rounded-lg sm:rounded-xl
+              bg-white/10 backdrop-blur
+              border border-white/20
+      "
             >
-              <p className={`text-xs mb-1 flex items-center gap-1 ${t.accent}`}>
+              <p
+                className={`text-[11px] mb-1 flex items-center gap-1 ${t.accent}`}
+              >
                 <Star className="w-3 h-3" />
                 {i + 2}
               </p>
 
-              <p className="font-semibold leading-tight mb-1.5 line-clamp-2">
-                {book.title}
-              </p>
+              <div className="flex gap-2.5 items-center">
+                {book.thumbnail && (
+                  <img
+                    src={book.thumbnail}
+                    className="
+              h-16 sm:h-20
+              w-12 sm:w-14
+              object-contain rounded-md
+              shadow-[0_6px_16px_rgba(0,0,0,0.4)]
+              shrink-0
+            "
+                  />
+                )}
 
-              <p className="text-xs opacity-70 line-clamp-1">
-                {book.authors.join(", ")}
-              </p>
+                <div className="min-w-0">
+                  <p
+                    className="
+                  font-semibold
+                  text-[13px] sm:text-sm
+                  leading-snug
+                  mb-0.5
+                  line-clamp-2
+          "
+                  >
+                    {book.title}
+                  </p>
+
+                  <p className="text-[11px] opacity-70 line-clamp-1">
+                    {book.authors.join(", ")}
+                  </p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-9 text-center text-xs opacity-60 flex items-center justify-center gap-1 relative tracking-wide">
+        <div
+          className="
+          mt-6 sm:mt-9
+          text-[10px] sm:text-xs
+          opacity-60
+          flex items-center justify-center gap-1
+          text-center
+          leading-tight
+          px-2
+"
+        >
           <FileText className="w-3 h-3" />
           Generated with Rank Your Books
         </div>
       </div>
 
-      <div ref={pdfRef} className="p-4 rounded-2xl">
+      <div ref={pdfRef} className="p-4 rounded-2xl ">
         {books.length > 0 && (
-          <section className="mt-3">
+          <section className="mt-2">
             <h2 className="text-xl font-bold mb-4 text-center">
               Your {yearFilter === "all" ? "All Time" : yearFilter} Book Ranking
             </h2>
