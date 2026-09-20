@@ -7,26 +7,29 @@ export default function ThemeProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [ready, setReady] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme");
+    const savedTheme = localStorage.getItem("theme");
 
-    if (saved === "dark") {
+    if (savedTheme === "dark") {
       document.documentElement.classList.add("dark");
-    } else if (saved === "light") {
+    } else if (savedTheme === "light") {
       document.documentElement.classList.remove("dark");
     } else {
-      // follow system preference
-      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        document.documentElement.classList.add("dark");
-      }
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+
+      document.documentElement.classList.toggle("dark", prefersDark);
     }
 
-    setReady(true);
+    setMounted(true);
   }, []);
 
-  if (!ready) return null;
+  if (!mounted) {
+    return null;
+  }
 
   return <>{children}</>;
 }

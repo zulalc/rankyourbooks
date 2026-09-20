@@ -5,33 +5,90 @@ import { useEffect, useState } from "react";
 
 export default function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const html = document.documentElement;
-    setIsDark(html.classList.contains("dark"));
+    setIsDark(document.documentElement.classList.contains("dark"));
+    setMounted(true);
   }, []);
 
-  const toggleTheme = () => {
+  function toggleTheme() {
     const html = document.documentElement;
+    const nextIsDark = !html.classList.contains("dark");
 
-    if (html.classList.contains("dark")) {
-      html.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-      setIsDark(false);
-    } else {
-      html.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-      setIsDark(true);
-    }
-  };
+    html.classList.toggle("dark", nextIsDark);
+
+    localStorage.setItem("theme", nextIsDark ? "dark" : "light");
+
+    setIsDark(nextIsDark);
+  }
+
+  if (!mounted) {
+    return (
+      <button
+        type="button"
+        aria-label="Toggle theme"
+        className="
+          flex
+          size-9
+          items-center
+          justify-center
+          rounded-full
+          border
+          border-border/70
+          bg-background
+          sm:size-10
+        "
+      />
+    );
+  }
 
   return (
     <button
+      type="button"
       onClick={toggleTheme}
-      className="p-2 rounded-full border bg-white dark:bg-neutral-800 text-black dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-700 active:scale-95 transition-all duration-200 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center
-  "
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      className="
+        group
+        flex
+        size-9
+        items-center
+        justify-center
+        rounded-full
+        border
+        border-border/70
+        bg-background
+        text-foreground
+        shadow-sm
+        transition-all
+        duration-200
+        hover:bg-muted
+        hover:shadow
+        active:scale-95
+        sm:size-10
+      "
     >
-      {isDark ? <Sun /> : <Moon />}
+      {isDark ? (
+        <Sun
+          className="
+            size-4
+            transition-transform
+            duration-300
+            group-hover:rotate-45
+            sm:size-4.25
+          "
+        />
+      ) : (
+        <Moon
+          className="
+            size-4
+            transition-transform
+            duration-300
+            group-hover:-rotate-12
+            sm:size-4.25
+          "
+        />
+      )}
     </button>
   );
 }
