@@ -1,18 +1,46 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Book } from "../types/book";
-type YearFilter = "all" | number;
+
+export type Season = "winter" | "spring" | "summer" | "autumn";
+
+export type ReadingPeriod =
+  | {
+      type: "all";
+    }
+  | {
+      type: "year";
+      year: number;
+    }
+  | {
+      type: "month";
+      year: number;
+      month: number; // 1-12
+    }
+  | {
+      type: "season";
+      year: number;
+      season: Season;
+    };
 
 type BookState = {
   books: Book[];
-  yearFilter: YearFilter;
-  setYearFilter: (y: YearFilter) => void;
+
+  readingPeriod: ReadingPeriod;
+  setReadingPeriod: (period: ReadingPeriod) => void;
+
   addBook: (book: Book) => void;
   addBooks: (books: Book[]) => void;
   removeBook: (id: string) => void;
   isSelected: (id: string) => boolean;
   updateBook: (book: Book) => void;
+
   reset: () => void;
+};
+
+const defaultReadingPeriod: ReadingPeriod = {
+  type: "year",
+  year: new Date().getFullYear(),
 };
 
 export const useBookStore = create<BookState>()(
@@ -20,8 +48,12 @@ export const useBookStore = create<BookState>()(
     (set, get) => ({
       books: [],
 
-      yearFilter: 2025,
-      setYearFilter: (y) => set({ yearFilter: y }),
+      readingPeriod: defaultReadingPeriod,
+
+      setReadingPeriod: (period) =>
+        set({
+          readingPeriod: period,
+        }),
 
       addBook: (book) =>
         set((state) => ({
@@ -55,7 +87,11 @@ export const useBookStore = create<BookState>()(
           books: state.books.map((b) => (b.id === updated.id ? updated : b)),
         })),
 
-      reset: () => set({ books: [], yearFilter: 2025 }),
+      reset: () =>
+        set({
+          books: [],
+          readingPeriod: defaultReadingPeriod,
+        }),
     }),
 
     {

@@ -11,21 +11,21 @@ function expectedScore(r: number, rOpp: number, rdOpp: number) {
 export function updateGlicko(
   player: { rating: number; rd: number },
   opponent: { rating: number; rd: number },
-  score: 0 | 1
+  score: 0 | 1,
 ) {
   const E = expectedScore(player.rating, opponent.rating, opponent.rd);
+
   const G = g(opponent.rd);
 
   const d2 = 1 / (Q * Q * G * G * E * (1 - E));
 
-  const newRating =
-    player.rating +
-    (Q / (1 / (player.rd * player.rd) + 1 / d2)) * G * (score - E);
+  const rdSquared = player.rd * player.rd;
+  const newRD = Math.sqrt(1 / (1 / rdSquared + 1 / d2));
 
-  const newRD = Math.sqrt(1 / (1 / (player.rd * player.rd) + 1 / d2));
+  const newRating = player.rating + Q * newRD * newRD * G * (score - E);
 
   return {
     rating: newRating,
-    rd: Math.max(50, newRD), // prevent overconfidence
+    rd: Math.max(50, newRD),
   };
 }
