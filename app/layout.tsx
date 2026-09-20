@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import { Montserrat, Geist } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
-import ThemeToggle from "@/components/ThemeToggle";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { cn } from "@/lib/utils";
 
-const inter = Montserrat({
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const montserrat = Montserrat({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-montserrat",
@@ -21,13 +28,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className}`}>
+    <html lang="en" className={cn("font-sans", geist.variable)}>
+      <body className={montserrat.className}>
         <ThemeProvider>
-          <div className="p-2 flex justify-end">
-            <ThemeToggle />
+          <div className="flex min-h-screen flex-col">
+            <Navbar />
+
+            <main className="flex-1">{children}</main>
+
+            <Footer />
           </div>
-          {children}
         </ThemeProvider>
       </body>
     </html>

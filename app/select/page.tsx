@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { searchBooks } from "@/lib/getBooks";
 import { useBookStore } from "@/store/useBookStore";
 import BookCard from "@/components/BookCard";
+import type { Book } from "@/types/book";
 
 export default function SelectPage() {
   const router = useRouter();
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+
+  const [query, setQuery] = useState<string>("");
+  const [results, setResults] = useState<Book[]>([]);
 
   const {
     books: selectedBooks,
@@ -19,11 +21,13 @@ export default function SelectPage() {
   } = useBookStore();
 
   async function handleSearch() {
+    if (!query.trim()) return;
+
     const books = await searchBooks(query);
     setResults(books);
   }
 
-  function toggleBook(book: any) {
+  function toggleBook(book: Book) {
     if (isSelected(book.id)) {
       removeBook(book.id);
     } else {
@@ -32,38 +36,48 @@ export default function SelectPage() {
   }
 
   return (
-    <main className="pb-24 p-6 bg-background text-foreground">
-      <h1 className="text-2xl font-bold mb-4">Select your books</h1>
+    <main className="min-h-screen bg-background p-6 pb-24 text-foreground">
+      <h1 className="mb-4 text-2xl font-bold">Select your books</h1>
 
-      <div className="flex gap-2 mb-6">
+      <div className="mb-6 flex gap-2">
         <input
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setQuery(e.target.value)
+          }
           className="
-          border p-2 w-full rounded
-          bg-white dark:bg-gray-800
-          border-gray-300 dark:border-gray-700
-          placeholder:text-gray-500 dark:placeholder:text-gray-400
-          focus:outline-none focus:ring-1 focus:ring-gray-400
-        "
+            w-full rounded border p-2
+            border-gray-300
+            bg-white
+            placeholder:text-gray-500
+            focus:outline-none
+            focus:ring-1
+            focus:ring-gray-400
+            dark:border-gray-700
+            dark:bg-gray-800
+            dark:placeholder:text-gray-400
+          "
           placeholder="Search books..."
         />
 
         <button
+          type="button"
           onClick={handleSearch}
           className="
-          px-4 rounded
-          bg-black dark:bg-gray-700
-          hover:bg-zinc-800 dark:hover:bg-gray-600
-          text-white
-          transition-colors
-        "
+            rounded px-4
+            bg-black
+            text-white
+            transition-colors
+            hover:bg-zinc-800
+            dark:bg-gray-700
+            dark:hover:bg-gray-600
+          "
         >
           Search
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {results.map((book) => (
           <BookCard
             key={book.id}
@@ -76,26 +90,31 @@ export default function SelectPage() {
 
       <div
         className="
-        fixed bottom-0 left-0 w-full border-t
-        bg-white dark:bg-gray-900
-        border-gray-200 dark:border-gray-800
-        p-4 flex justify-between items-center
-      "
+          fixed bottom-0 left-0 flex w-full
+          items-center justify-between
+          border-t
+          border-gray-200
+          bg-white
+          p-4
+          dark:border-gray-800
+          dark:bg-gray-900
+        "
       >
         <span className="font-medium">Selected: {selectedBooks.length}</span>
 
         <button
+          type="button"
           disabled={selectedBooks.length < 2}
           onClick={() => router.push("/quiz")}
           className={`
-          px-6 py-2 rounded text-white transition
+            rounded px-6 py-2 text-white transition
 
-          ${
-            selectedBooks.length < 2
-              ? "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
-              : "bg-black dark:bg-gray-700 hover:bg-zinc-900 dark:hover:bg-gray-600"
-          }
-        `}
+            ${
+              selectedBooks.length < 2
+                ? "cursor-not-allowed bg-gray-300 dark:bg-gray-700"
+                : "bg-black hover:bg-zinc-900 dark:bg-gray-700 dark:hover:bg-gray-600"
+            }
+          `}
         >
           Start Quiz
         </button>

@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import { Book } from "../types/book";
 
 type Props = {
@@ -6,54 +7,217 @@ type Props = {
   onClick?: () => void;
 };
 
-export default function BookCard({ book, selected, onClick }: Props) {
+export default function BookCard({ book, selected = false, onClick }: Props) {
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
       className={`
-      relative cursor-pointer rounded-lg p-4 transition
+        group relative w-full overflow-hidden
+        rounded-2xl
+        border
+        bg-card
+        p-3
+        text-left
+        transition-all
+        duration-300
+        focus-visible:outline-none
+        focus-visible:ring-2
+        focus-visible:ring-foreground
+        focus-visible:ring-offset-2
 
-      border
-      bg-white dark:bg-gray-800
-      border-gray-200 dark:border-gray-700
-
-      ${
-        selected
-          ? "border-black dark:border-gray-400 ring-2 ring-black dark:ring-gray-400"
-          : "hover:shadow-md dark:hover:shadow-gray-700"
-      }
-    `}
+        ${
+          selected
+            ? `
+              border-foreground
+              bg-muted/40
+              shadow-md
+              ring-1
+              ring-foreground/20
+            `
+            : `
+              border-border/70
+              shadow-sm
+              hover:-translate-y-1
+              hover:border-foreground/20
+              hover:shadow-lg
+            `
+        }
+      `}
     >
+      {/* Selected indicator */}
       {selected && (
         <div
           className="
-    absolute top-2 right-2
-    bg-emerald-600 dark:bg-emerald-500
-    text-white text-xs font-medium
-    px-2 py-1 rounded
-    shadow
-  "
+            absolute
+            right-3
+            top-3
+            z-10
+            flex
+            items-center
+            gap-1.5
+            rounded-full
+            bg-foreground
+            px-2.5
+            py-1
+            text-xs
+            font-medium
+            text-background
+            shadow-sm
+          "
         >
-          ✓ Selected
+          <Check className="size-3" />
+          Selected
         </div>
       )}
 
-      {book.thumbnail && (
-        <img
-          src={book.thumbnail}
-          alt={book.title}
-          className="
-          h-40 w-full object-cover rounded
-          border border-gray-100 dark:border-gray-700
+      {/* Book cover */}
+      <div
+        className="
+          relative
+          flex
+          h-52
+          items-center
+          justify-center
+          overflow-hidden
+          rounded-xl
+          bg-muted/40
+          p-3
+          sm:h-60
         "
-        />
-      )}
+      >
+        {book.thumbnail ? (
+          <img
+            src={book.thumbnail}
+            alt={book.title}
+            className={`
+              h-full
+              w-full
+              object-contain
+              rounded-lg
+              shadow-sm
+              transition-transform
+              duration-500
+              ${selected ? "scale-[1.02]" : "group-hover:scale-[1.03]"}
+            `}
+          />
+        ) : (
+          <div
+            className="
+              flex
+              h-full
+              w-full
+              items-center
+              justify-center
+              rounded-lg
+              border
+              border-border
+              bg-background
+              px-6
+              text-center
+              text-sm
+              font-medium
+              text-muted-foreground
+            "
+          >
+            {book.title}
+          </div>
+        )}
 
-      <h3 className="mt-2 font-semibold text-foreground">{book.title}</h3>
+        {/* Hover overlay */}
+        {!selected && (
+          <div
+            className="
+              pointer-events-none
+              absolute
+              inset-0
+              rounded-xl
+              bg-foreground/[0.03]
+              opacity-0
+              transition-opacity
+              duration-300
+              group-hover:opacity-100
+            "
+          />
+        )}
+      </div>
 
-      <p className="text-sm text-gray-500 dark:text-gray-400">
-        {book.authors.join(", ")}
-      </p>
-    </div>
+      {/* Book information */}
+      <div className="px-1 pb-1 pt-4">
+        <h3
+          className="
+            line-clamp-2
+            text-sm
+            font-semibold
+            leading-snug
+            tracking-tight
+            sm:text-base
+          "
+        >
+          {book.title}
+        </h3>
+
+        {book.authors.length > 0 && (
+          <p
+            className="
+              mt-1.5
+              line-clamp-1
+              text-xs
+              leading-5
+              text-muted-foreground
+              sm:text-sm
+            "
+          >
+            {book.authors.join(", ")}
+          </p>
+        )}
+
+        {/* Bottom state */}
+        <div
+          className={`
+            mt-4
+            flex
+            items-center
+            justify-between
+            border-t
+            pt-3
+            text-xs
+            font-medium
+            transition-colors
+            ${
+              selected
+                ? "border-foreground/10 text-foreground"
+                : "border-border/60 text-muted-foreground group-hover:text-foreground"
+            }
+          `}
+        >
+          <span>{selected ? "Added to ranking" : "Add to ranking"}</span>
+
+          <span
+            className={`
+              flex
+              size-7
+              items-center
+              justify-center
+              rounded-full
+              border
+              transition-all
+              duration-300
+              ${
+                selected
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border group-hover:border-foreground group-hover:bg-foreground group-hover:text-background"
+              }
+            `}
+          >
+            {selected ? (
+              <Check className="size-3.5" />
+            ) : (
+              <span className="text-sm leading-none">+</span>
+            )}
+          </span>
+        </div>
+      </div>
+    </button>
   );
 }
