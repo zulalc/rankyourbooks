@@ -114,6 +114,7 @@ export default function Home() {
   const [uploading, setUploading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const sourceChoiceRef = useRef<HTMLDivElement>(null);
 
   function selectPeriod(
     type: "year" | "month" | "season" | "all",
@@ -185,6 +186,13 @@ export default function Home() {
 
   function continueFromPeriod() {
     setShowSourceChoice(true);
+
+    setTimeout(() => {
+      sourceChoiceRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 0);
   }
 
   function goToManualSelection() {
@@ -235,9 +243,7 @@ export default function Home() {
 
   return (
     <div className="bg-background text-foreground">
-      {/* Hero */}
       <section className="relative overflow-hidden">
-        {/* Decorative background */}
         <div className="pointer-events-none absolute inset-0">
           <div
             className="
@@ -272,7 +278,6 @@ export default function Home() {
             lg:pt-24
           "
         >
-          {/* Hero copy */}
           <div className="flex flex-col justify-center">
             <Badge
               variant="secondary"
@@ -339,8 +344,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Main Card */}
           <Card
+            ref={sourceChoiceRef}
             className="
               rounded-3xl
               border-border/70
