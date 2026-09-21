@@ -1,7 +1,7 @@
 "use client";
 
 import { StartFreshButton } from "@/components/StartFreshButton";
-import { TopFiveTheme, TopFiveThemes } from "@/lib/topFiveThemes";
+import { TopFiveThemes } from "@/lib/topFiveThemes";
 import { useBookStore } from "@/store/useBookStore";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
@@ -81,7 +81,7 @@ export default function ResultsPage() {
   const pdfRef = useRef<HTMLDivElement>(null);
 
   const [exporting, setExporting] = useState(false);
-  const [theme, setTheme] = useState<TopFiveTheme>("matcha");
+  const [theme, setTheme] = useState<keyof typeof TopFiveThemes>("matcha");
 
   const t = TopFiveThemes[theme];
 
@@ -222,7 +222,7 @@ export default function ResultsPage() {
             <button
               type="button"
               key={key}
-              onClick={() => setTheme(key as TopFiveTheme)}
+              onClick={() => setTheme(key as keyof typeof TopFiveThemes)}
               className={`
                 rounded-lg px-3 py-1.5 text-sm capitalize transition
                 ${
@@ -243,12 +243,17 @@ export default function ResultsPage() {
           className={`
             relative overflow-hidden rounded-2xl sm:rounded-3xl
             bg-linear-to-b ${t.bg}
-            p-5 pb-8 text-white shadow-2xl
+            p-5 pb-8 ${t.text} shadow-2xl
             sm:p-10 sm:pb-14
           `}
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_60%)]" />
-
+          <div
+            className={`
+      pointer-events-none absolute inset-0
+      bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_60%)]
+      ${theme === "paper" ? "opacity-0" : ""}
+    `}
+          />
           {/* Header inside export */}
           <div className="relative mb-6 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -265,11 +270,21 @@ export default function ResultsPage() {
             </div>
 
             <div className="text-left sm:text-right">
-              <p className="text-4xl font-extrabold leading-none text-white drop-shadow-lg sm:text-7xl">
+              <p
+                className={`
+          text-4xl font-extrabold leading-none drop-shadow-lg sm:text-7xl
+          ${t.text}
+        `}
+              >
                 {books.length}
               </p>
 
-              <p className="text-sm tracking-[0.2em] text-white opacity-90">
+              <p
+                className={`
+          text-sm tracking-[0.2em] opacity-90
+          ${t.muted}
+        `}
+              >
                 BOOKS READ
               </p>
             </div>
@@ -285,7 +300,14 @@ export default function ResultsPage() {
                 Favorite Book of {periodLabel}
               </p>
 
-              <div className="relative flex flex-col items-center gap-4 rounded-xl border border-white/20 bg-white/10 p-4 shadow-[0_20px_40px_rgba(0,0,0,0.4)] backdrop-blur sm:flex-row sm:items-start sm:gap-8 sm:rounded-2xl sm:p-7">
+              <div
+                className={`
+          relative flex flex-col items-center gap-4
+          rounded-xl border p-4 backdrop-blur
+          sm:flex-row sm:items-start sm:gap-8 sm:rounded-2xl sm:p-7
+          ${t.card}
+        `}
+              >
                 {topFive[0].thumbnail && (
                   <img
                     src={topFive[0].thumbnail}
@@ -314,7 +336,11 @@ export default function ResultsPage() {
             {topFive.slice(1).map((book, i) => (
               <div
                 key={book.id}
-                className="rounded-lg border border-white/20 bg-white/10 p-2.5 backdrop-blur sm:rounded-xl sm:p-3"
+                className={`
+          rounded-lg border p-2.5 backdrop-blur
+          sm:rounded-xl sm:p-3
+          ${t.card}
+        `}
               >
                 <p
                   className={`mb-1 flex items-center gap-1 text-[11px] ${t.accent}`}
@@ -337,7 +363,7 @@ export default function ResultsPage() {
                       {book.title}
                     </p>
 
-                    <p className="line-clamp-1 text-[11px] opacity-70">
+                    <p className={`line-clamp-1 text-[11px] ${t.muted}`}>
                       {book.authors.join(", ")}
                     </p>
                   </div>
@@ -346,7 +372,13 @@ export default function ResultsPage() {
             ))}
           </div>
 
-          <div className="relative mt-6 flex items-center justify-center gap-1 px-2 text-center text-[10px] leading-tight opacity-60 sm:mt-9 sm:text-xs">
+          <div
+            className={`
+      relative mt-6 flex items-center justify-center gap-1
+      px-2 text-center text-[10px] leading-tight sm:mt-9 sm:text-xs
+      ${t.muted}
+    `}
+          >
             <FileText className="h-3 w-3" />
             Generated with Rank Your Books
           </div>
