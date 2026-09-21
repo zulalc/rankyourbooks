@@ -6,6 +6,8 @@ import { searchBooks } from "@/lib/getBooks";
 import { useBookStore } from "@/store/useBookStore";
 import BookCard from "@/components/BookCard";
 import type { Book } from "@/types/book";
+import { StartFreshButton } from "@/components/StartFreshButton";
+import { X } from "lucide-react";
 
 export default function SelectPage() {
   const router = useRouter();
@@ -37,41 +39,77 @@ export default function SelectPage() {
 
   return (
     <main className="min-h-screen bg-background p-6 pb-24 text-foreground">
-      <h1 className="mb-4 text-2xl font-bold">Select your books</h1>
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Select your books</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Choose the books you want to rank.
+          </p>
+        </div>
+        {selectedBooks.length > 0 && <StartFreshButton />}
+      </div>
 
       <div className="mb-6 flex gap-2">
-        <input
-          value={query}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setQuery(e.target.value)
-          }
-          className="
-            w-full rounded border p-2
-            border-gray-300
-            bg-white
-            placeholder:text-gray-500
-            focus:outline-none
-            focus:ring-1
-            focus:ring-gray-400
-            dark:border-gray-700
-            dark:bg-gray-800
-            dark:placeholder:text-gray-400
-          "
-          placeholder="Search books..."
-        />
+        <div className="relative flex-1">
+          <input
+            value={query}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setQuery(e.target.value)
+            }
+            className="
+        w-full rounded border p-2 pr-10
+        border-gray-300
+        bg-white
+        placeholder:text-gray-500
+        focus:outline-none
+        focus:ring-1
+        focus:ring-gray-400
+        dark:border-gray-700
+        dark:bg-gray-800
+        dark:placeholder:text-gray-400
+      "
+            placeholder="Search books..."
+          />
+
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setResults([]);
+              }}
+              aria-label="Clear search"
+              className="
+          absolute right-2 top-1/2
+          -translate-y-1/2
+          rounded-full p-1
+          text-gray-400
+          transition
+          hover:bg-gray-100
+          hover:text-gray-700
+          dark:hover:bg-gray-700
+          dark:hover:text-gray-200
+          cursor-pointer
+        "
+            >
+              <X className="size-4" />
+            </button>
+          )}
+        </div>
 
         <button
           type="button"
           onClick={handleSearch}
           className="
-            rounded px-4
-            bg-black
-            text-white
-            transition-colors
-            hover:bg-zinc-800
-            dark:bg-gray-700
-            dark:hover:bg-gray-600
-          "
+      rounded px-4
+      bg-black
+      text-white
+      transition-colors
+      hover:bg-zinc-800
+      dark:bg-gray-700
+      dark:hover:bg-gray-600
+      cursor-pointer
+    "
         >
           Search
         </button>

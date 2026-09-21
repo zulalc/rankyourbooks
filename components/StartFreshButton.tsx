@@ -21,6 +21,7 @@ export function StartFreshButton() {
         text-red-700 dark:text-red-300
         hover:bg-red-100 dark:hover:bg-red-900
         transition
+        cursor-pointer
       "
     >
       Start Fresh

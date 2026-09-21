@@ -25,6 +25,7 @@ export default function BookCard({ book, selected = false, onClick }: Props) {
         focus-visible:ring-2
         focus-visible:ring-foreground
         focus-visible:ring-offset-2
+        cursor-pointer
 
         ${
           selected
@@ -132,7 +133,7 @@ export default function BookCard({ book, selected = false, onClick }: Props) {
               absolute
               inset-0
               rounded-xl
-              bg-foreground/[0.03]
+              bg-foreground/3
               opacity-0
               transition-opacity
               duration-300
